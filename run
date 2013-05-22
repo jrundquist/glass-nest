@@ -1,0 +1,3 @@
+#!/bin/sh
+
+foreman run nodemon main.js
