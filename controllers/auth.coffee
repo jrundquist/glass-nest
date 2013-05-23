@@ -34,7 +34,7 @@ exports = module.exports = (app) ->
 
           app.mirror.subscriptions.insert(
               resource:
-                callbackUrl: process.env.DOMAIN+'/subscription/callback'
+                callbackUrl: process.env.GOOGLE_SUBSCRIPTION_CALLBACK
                 collection: 'timeline'
                 operation: []
                 userToken: user.id

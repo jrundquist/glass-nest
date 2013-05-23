@@ -43,12 +43,18 @@ exports = module.exports = (app) ->
                         </div>\n\
                       </section>\n\
                       <footer>\n\
+                        <p style=\"float:right\">just now</p>
                         <img src=\"http://i.imgur.com/lBERcCp.png\" height=\"25px\" />\n\
                       </footer>\n\
                     </article>"
           res.render 'account', card: html
     else
       res.render 'index'
+
+
+  app.get '/about', (req, res) ->
+    res.render 'about'
+
 
   app.get '/settings', app.gate.requireLogin, (req, res) ->
     nest.login req.user.nestAuth?.user, req.user.nestAuth?.pass, (err, data) ->
@@ -66,6 +72,7 @@ exports = module.exports = (app) ->
             id: structureId
             name: structureInfo.name
         res.render 'account/settings', devices: devices, structures: structures
+
 
   app.post '/settings', app.gate.requireLogin, (req, res) ->
     req.user.structure = req.body.structure
