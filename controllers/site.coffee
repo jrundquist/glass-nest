@@ -3,7 +3,6 @@ nest = require 'unofficial-nest-api'
 exports = module.exports = (app) ->
   # Home
   app.get '/', (req, res) ->
-    console.log 'got request for /'
     if req.user
       user = req.user
       nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) =>
@@ -27,7 +26,6 @@ exports = module.exports = (app) ->
             awayText = "<p class=\"text-x-small\">away</p>"
           else
             awayText = "\n"
-
 
           html = "<article class=\"glass-view\">\n\
                       <section>\n\
