@@ -1,0 +1,23 @@
+<form method="POST">
+
+  <p>Structures to control <small><%=user.structure%></p>
+  <select name="structure">
+    <%structures.forEach(function(s){%>
+      <option value="<%=s.id%>" <%=user.structure==s.id?"selected":""%>><%=s.name%></option>
+    <%})%>
+  </select>
+
+  <p>Device to control <small><%=user.device%></p>
+  <select name="device">
+    <%devices.forEach(function(d){%>
+      <option value="<%=d.id%>" <%=user.device==d.id?"selected":""%>><%=d.name%></option>
+    <%})%>
+  </select>
+
+  <select name="celcius">
+    <option value="true"  <%=user.celcius?"selected":""%>>C</option>
+    <option value="false" <%=!user.celcius?"selected":""%>>F</option>
+  </select>
+
+  <button type="submit">Save</button>
+</form>

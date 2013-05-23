@@ -9,3 +9,5 @@ logs/access.log
 /views*     # view files
 /node_modules/*
 *.log
+
+/.cache*

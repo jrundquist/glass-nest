@@ -2,16 +2,35 @@
 #   Kicks off the whole show
 #
 app      = (require 'express')()
-port     = process.env.PORT or 8080
+unapp    = (require 'express')()
+port     = process.env.PORT or 8081
 mongoose = require 'mongoose'
 settings = require './lib/settings'
 errors   = require './lib/error-handler'
 google   = require 'googleapis'
 imgur    = require './lib/imgur'
+https    = require('https')
+fs       = require 'fs'
+
+
+httpsOptions =
+  key: fs.readFileSync('key.pem')
+  cert: fs.readFileSync('certificate.pem')
+
 
 
 
 console.log "\n\nStarting in mode:", app.settings.env
+
+unapp.all '*', (req, res) ->
+  console.log "HTTP: #{req.url}"
+  res.redirect "https://#{req.headers["host"]}#{req.url}"
+unapp.listen 8080
+
+# app.all '*', (req, res, next) ->
+#   if req.headers['x-forwarded-proto'] isnt 'https'
+#     return res.redirect "https://#{req.headers["host"]}#{req.url}"
+#   next()
 
 app.config = process.env
 
@@ -20,7 +39,6 @@ app.imgur = imgur(process.env.IMGUR_CLIENT_ID)
 app.google = google
 
 mongoose.connection.on 'open', ()->
-
 
   google
     .discover('mirror', 'v1' )
@@ -62,14 +80,8 @@ mongoose.connection.on 'open', ()->
 
 
   # Start the app by listening on <port>
-  server = app.listen port
-  console.log "IMGUR pusher started on port #{port}"
-
-
-
-  # Send Service
-  require('./lib/send-service')(app)
-
+  server = https.createServer(httpsOptions,app).listen port
+  console.log "Glass Nest started on port #{port}"
 
 
 

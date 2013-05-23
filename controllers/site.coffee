@@ -1,63 +1,60 @@
+nest = require 'unofficial-nest-api'
+
 exports = module.exports = (app) ->
   # Home
   app.get '/', (req, res) ->
-    res.render 'index'
+    if req.user
+      res.render 'account'
+    else
+      res.render 'index'
 
-  app.get '/new-card', (req, res) ->
+  app.get '/settings', app.gate.requireLogin, (req, res) ->
+    nest.login req.user.nestAuth?.user, req.user.nestAuth?.pass, (err, data) ->
+      return res.render 'account/settings-no-nest' if err
+      nest.fetchStatus (data) ->
+        devices = []
+        structures = []
+        for deviceId, deviceInfo of data.shared
+          devices.push
+            id: deviceId
+            name: deviceInfo.name
+            current_temperature: deviceInfo.current_temperature
+        for structureId, structureInfo of data.structure
+          structures.push
+            id: structureId
+            name: structureInfo.name
+        res.render 'account/settings', devices: devices, structures: structures
 
-    app.oauth2Client.credentials = {
-      token_type: req.user.token_type
-      access_token: req.user.token,
-      refresh_token: req.user.refresh_token
-    };
+  app.post '/settings', app.gate.requireLogin, (req, res) ->
+    req.user.structure = req.body.structure
+    req.user.device = req.body.device
+    req.user.celcius = req.body.celcius is 'true'
+    req.user.save()
+    res.redirect '/'
 
-    app.mirror.timeline.insert({"resource":{"text":"Hello from the app!!"}})
-      .withAuthClient(app.oauth2Client)
-      .execute (err, data) ->
-        console.log err, data
-        req.user.timelineItems.push(data) if not err
-        req.user.save () ->
-          res.json data || err
+  app.get '/current-temp.:format?', app.gate.requireLogin, (req, res) ->
+    u = req.user
+    nest.login u.nestAuth?.user, u.nestAuth?.pass, (err, data) ->
+      if err
+        return res.redirect '/nest-auth?incorrect'
+      nest.fetchStatus (data) ->
+        return res.json data if req.params.format is 'raw'
+
+        shared=data.shared[u.device]
+        device=data.device[u.device]
+        structure=data.structure[u.structure]
+
+        res.render 'info',
+          targetTemp: u.localTemp(shared.target_temperature)
+          currentTemp: u.localTemp(shared.current_temperature)
+          currentHumidity: device.target_humidity
+          leaf: device.leaf
+          timeToTarget: device.time_to_target
+          away: structure.away
+          #   nest.setTemperature(deviceId, nest.ftoc(70))
 
 
 
-  app.get '/cards', (req, res) ->
-
-    app.oauth2Client.credentials = {
-      token_type: req.user.token_type
-      access_token: req.user.token,
-      refresh_token: req.user.refresh_token
-    };
-
-    app.mirror.timeline.list()
-      .withAuthClient(app.oauth2Client)
-      .execute (err, data) ->
-        res.json data || err
 
 
-  app.get '/del', (req, res) ->
 
-    app.oauth2Client.credentials = {
-      token_type: req.user.token_type
-      access_token: req.user.token,
-      refresh_token: req.user.refresh_token
-    };
-
-    idToDelete = req.query.id || "b8738397-ff75-4cae-9041-d005cc26d125"
-
-    app.mirror.timeline.delete({"id":idToDelete})
-      .withAuthClient(app.oauth2Client)
-      .execute (err, data) ->
-        return res.json err if err
-        req.user.timelineItems = req.user.timelineItems.filter( (t) -> t.id isnt idToDelete )
-        req.user.save () ->
-          res.json data || err
-
-# {
-# "kind": "mirror#timelineItem",
-# "id": "b8738397-ff75-4cae-9041-d005cc26d125",
-# "created": "2013-05-17T04:44:54.834Z",
-# "updated": "2013-05-17T04:44:54.834Z",
-# "etag": "\"r3ghbVW9Rp1kDP4UexS05_pFx4E/gjP6rOMcNEXDlKK8Fbm8JVgtf_M\"",
-# "text": "Hello from the app!!"
-# }
