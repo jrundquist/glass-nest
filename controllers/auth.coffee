@@ -31,7 +31,7 @@ exports = module.exports = (app) ->
         for structureId of data.structure
           user.structure = structureId
         user.save (err) ->
-          user.updateNestCard()
+          user.updateNestCard app
         res.redirect '/'
 
   app.get '/send-card', app.gate.requireLogin, (req, res) ->
