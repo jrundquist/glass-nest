@@ -88,7 +88,7 @@ exports = module.exports = (app) ->
             if matches
               nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) ->
                 nest.fetchStatus (data) ->
-                  nest.setAway(true, user.structure);
+                  nest.setAway true, user.structure
                   user.updateNestCard app
               return
 
@@ -99,11 +99,11 @@ exports = module.exports = (app) ->
             # "leaving work | the office"
             # "away status to false"
             # "im home"
-            matches = query.match /(?:(?:heading|going)\shome)|(?:leaving\s(?:work|the\soffice))|(?:away(?:\sstatus)?\sto\sfalse)|(?:im\shome)/i
+            matches = query.match /(?:(?:heading|going)\shome)|(?:leaving\s(?:work|the\soffice))|(?:away(?:\sstatus)?\sto\sfalse)|(?:(?:i'?m|i\sam)\shome)/i
             if matches
               nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) ->
                 nest.fetchStatus (data) ->
-                  nest.setAway(false, user.structure);
+                  nest.setAway false, user.structure
                   user.updateNestCard app
               return
 
