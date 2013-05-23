@@ -41,13 +41,15 @@ exports = module.exports = (app) ->
 
     return if req.body.operation isnt 'INSERT'
 
+    console.log 'finding one user', req.body.userToken
     app.models.User.findOne _id: req.body.userToken, (err, user) ->
+      console.log 'found user?', user
       return if err or not user
 
       app.mirror.timeline.get(req.body.itemId)
         .withAuthClient(user.credentials(app))
         .execute (err, data) ->
-          console.log data
+          console.log "On get of sent card", (err || data)
 
           response = data
 
