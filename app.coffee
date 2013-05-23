@@ -22,12 +22,6 @@ httpsOptions =
 
 console.log "\n\nStarting in mode:", app.settings.env
 
-if process.env.NODE_ENV isnt 'development'
-  app.all '*', (req, res, next) ->
-    if req.headers['x-forwarded-proto'] isnt 'https'
-      return res.redirect "https://#{req.headers["host"]}#{req.url}"
-    next()
-
 app.config = process.env
 
 app.imgur = imgur(process.env.IMGUR_CLIENT_ID)
@@ -76,7 +70,10 @@ mongoose.connection.on 'open', ()->
 
 
   # Start the app by listening on <port>
-  server = https.createServer(httpsOptions,app).listen port
+  if process.env.NODE_ENV isnt 'development'
+    server = https.createServer(app).listen port
+  else
+    server = https.createServer(httpsOptions,app).listen port
   console.log "Glass Nest started on port #{port}"
 
 
