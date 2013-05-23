@@ -96,11 +96,18 @@ UserSchema.method('updateNestCard', (app) ->
       targetTemp  = @.localTemp(shared.target_temperature)
       currentTemp = @.localTemp(shared.current_temperature)
       leaf        = device.leaf
+      away        = structure.away
 
       if leaf
-        leafText = "<img src=\"http://i.imgur.com/57lfBl8.png\" width=\"60\" height=\"61\" style=\"margin-top:10px;\">\n"
+        leafText = "<img src=\"http://i.imgur.com/57lfBl8.png\" width=\"60\" height=\"61\" style=\"margin: 5px 0 0px 0\">\n"
       else
         leafText = '\n'
+
+
+      if away
+        awayText = "<p class=\"text-x-small\">away</p>"
+      else
+        awayText = "\n"
 
 
       html = "<article>\n\

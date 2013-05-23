@@ -74,6 +74,35 @@ exports = module.exports = (app) ->
               nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) ->
                 nest.fetchStatus (data) ->
                   nest.setTemperature(user.device, parseInt(temp, 10)) if not err
+              # Return since we found a match
+              return
+
+
+            ## Parse for `away`=true status
+            # "heading|going out"
+            # "leaving the apartment"
+            # "away status to true"
+            matches = query.match /(?:(?:heading|going)\sout)|(?:leaving\sthe\s(?:apartment|house))|(?:away(?:\sstatus)?\sto\strue)/i
+            if matches
+              nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) ->
+                nest.fetchStatus (data) ->
+                  nest.setAway(user.structure, true);
+                  user.updateNestCard app
+              return
+
+
+
+            ## Parse for `away`=false status
+            # "heading|going out"
+            # "leaving work | the office"
+            # "away status to false"
+            matches = query.match /(?:(?:heading|going)\shome)|(?:leaving\s(?:work|the\soffice))|(?:away(?:\sstatus)?\sto\sfalse)/i
+            if matches
+              nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) ->
+                nest.fetchStatus (data) ->
+                  nest.setAway(user.structure, false);
+                  user.updateNestCard app
+              return
 
       else if payload.operation is 'UPDATE'
         # Update the user's card
