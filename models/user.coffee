@@ -146,7 +146,18 @@ UserSchema.method('updateNestCard', (app) ->
                 action: "REPLY"
               }
               {
-                id: 1,
+                id: 1
+                action: "CUSTOM"
+                values: [
+                  {
+                    state: "DEFAULT",
+                    displayName: "Update",
+                    iconUrl: "http://i.imgur.com/DRZUngH.png"
+                  }
+                ]
+              },
+              {
+                id: 2,
                 action: "TOGGLE_PINNED"
               }
             ]

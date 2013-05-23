@@ -35,19 +35,20 @@ exports = module.exports = (app) ->
 
   app.post '/subscription/callback', (req, res) ->
 
-    console.log req.body
+    payload = req.body
 
-    if req.body.verifyToken is process.env.GOOGLE_VERIFY_TOKEN
+    if payload.verifyToken is process.env.GOOGLE_VERIFY_TOKEN
       res.send 200
     else
-      res.send 401
+      return res.send 401
 
-    if req.body.operation is 'INSERT'
-      console.log 'finding one user', req.body.userToken
-      app.models.User.findOne({_id: req.body.userToken}).exec (err, user) ->
-        return if err or not user
+    console.log 'finding one user', payload.userToken
+    app.models.User.findOne({_id: payload.userToken}).exec (err, user) ->
+      return if err or not user
 
-        app.mirror.timeline.get(id: req.body.itemId)
+      ## Check if we got a 'reply' message back
+      if payload.operation is 'INSERT'
+        app.mirror.timeline.get(id: payload.itemId)
           .withAuthClient(user.credentials(app))
           .execute (err, data) ->
             console.log "On get of sent card", (err || data)
@@ -58,6 +59,9 @@ exports = module.exports = (app) ->
 
             return if not query
 
+            ## Parse for degrees
+            # 'temperature to XX'
+            # 'XX degrees'
             matches = query.match /(?:temp(?:erature)\sto\s([0-9]+)\s)|(?:([0-9]+) degrees)/i
             if matches
               temp = matches[1] || matches[2]
@@ -65,10 +69,14 @@ exports = module.exports = (app) ->
                 nest.fetchStatus (data) ->
                   nest.setTemperature(user.device, parseInt(temp, 10)) if not err
 
-                app.mirror.timeline.delete(id: req.body.itemId)
+                app.mirror.timeline.delete(id: payload.itemId)
                   .withAuthClient(user.credentials(app))
                   .execute () ->
                     user.updateNestCard app
 
+      else if payload.operation is 'UPDATE'
+        user.updateNestCard app
 
-    console.log req.body
+
+
+
