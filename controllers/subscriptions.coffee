@@ -45,7 +45,7 @@ exports = module.exports = (app) ->
     app.models.User.findOne({_id: req.body.userToken}).exec (err, user) ->
       return if err or not user
 
-      app.mirror.timeline.get(req.body.itemId)
+      app.mirror.timeline.get(id: req.body.itemId)
         .withAuthClient(user.credentials(app))
         .execute (err, data) ->
           console.log "On get of sent card", (err || data)
@@ -54,18 +54,19 @@ exports = module.exports = (app) ->
 
           query = response.text
 
-          app.mirror.timeline.delete(id: req.body.itemId)
-            .withAuthClient(user.credentials(app))
-            .execute (err)->
-              console.log err if err
+          return if not query
 
           matches = query.match /(?:temp(?:erature)\sto\s([0-9]+)\s)|(?:([0-9]+) degrees)/i
           if matches
             temp = matches[1] || matches[2]
             nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) ->
-              nest.setTemperature(user.deviceId, parseInt(temp, 10)) if not err
+              nest.fetchStatus (data) ->
+                nest.setTemperature(user.device, parseInt(temp, 10)) if not err
 
-              user.updateNestCard()
+              app.mirror.timeline.delete(id: req.body.itemId)
+                .withAuthClient(user.credentials(app))
+                .execute () ->
+                  user.updateNestCard app
 
 
     console.log req.body
