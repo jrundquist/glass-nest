@@ -9,6 +9,7 @@ exports = module.exports = (app) ->
 
 
   app.get '/subsciptions/:id/remove', app.gate.requireLogin, (req, res) ->
+    user = req.user
     app.mirror.subscriptions.delete(id: req.params.id)
       .withAuthClient(user.credentials(app))
       .execute (err, data) ->
@@ -18,7 +19,7 @@ exports = module.exports = (app) ->
     user = req.user
     app.mirror.subscriptions.insert(
         resource:
-          callbackUrl: 'https://'+process.env.DOMAIN+'/subscription/callback'
+          callbackUrl: process.env.DOMAIN+'/subscription/callback'
           collection: 'timeline'
           operation: []
           userToken: user.id
