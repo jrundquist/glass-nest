@@ -62,7 +62,7 @@ mongoose.connection.on 'open', ()->
 
   # Start the app by listening on <port>
   server = app.listen port
-  console.log "IMGUR pusher started on port #{port}"
+  console.log "Glass-nest started on port #{port}"
 
 
 
@@ -72,4 +72,4 @@ mongoose.connection.on 'open', ()->
 
 
 
-mongoose.connect app.config.MONGOHQ_URL||'mongpo'
+mongoose.connect app.config.MONGOHQ_URL||'mongo://localhost/test'
