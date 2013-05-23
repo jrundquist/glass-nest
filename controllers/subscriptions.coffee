@@ -34,39 +34,41 @@ exports = module.exports = (app) ->
 
 
   app.post '/subscription/callback', (req, res) ->
+
+    console.log req.body
+
     if req.body.verifyToken is process.env.GOOGLE_VERIFY_TOKEN
       res.send 200
     else
       res.send 401
 
-    return if req.body.operation isnt 'INSERT'
+    if req.body.operation is 'INSERT'
+      console.log 'finding one user', req.body.userToken
+      app.models.User.findOne({_id: req.body.userToken}).exec (err, user) ->
+        return if err or not user
 
-    console.log 'finding one user', req.body.userToken
-    app.models.User.findOne({_id: req.body.userToken}).exec (err, user) ->
-      return if err or not user
+        app.mirror.timeline.get(id: req.body.itemId)
+          .withAuthClient(user.credentials(app))
+          .execute (err, data) ->
+            console.log "On get of sent card", (err || data)
 
-      app.mirror.timeline.get(id: req.body.itemId)
-        .withAuthClient(user.credentials(app))
-        .execute (err, data) ->
-          console.log "On get of sent card", (err || data)
+            response = data
 
-          response = data
+            query = response.text
 
-          query = response.text
+            return if not query
 
-          return if not query
+            matches = query.match /(?:temp(?:erature)\sto\s([0-9]+)\s)|(?:([0-9]+) degrees)/i
+            if matches
+              temp = matches[1] || matches[2]
+              nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) ->
+                nest.fetchStatus (data) ->
+                  nest.setTemperature(user.device, parseInt(temp, 10)) if not err
 
-          matches = query.match /(?:temp(?:erature)\sto\s([0-9]+)\s)|(?:([0-9]+) degrees)/i
-          if matches
-            temp = matches[1] || matches[2]
-            nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) ->
-              nest.fetchStatus (data) ->
-                nest.setTemperature(user.device, parseInt(temp, 10)) if not err
-
-              app.mirror.timeline.delete(id: req.body.itemId)
-                .withAuthClient(user.credentials(app))
-                .execute () ->
-                  user.updateNestCard app
+                app.mirror.timeline.delete(id: req.body.itemId)
+                  .withAuthClient(user.credentials(app))
+                  .execute () ->
+                    user.updateNestCard app
 
 
     console.log req.body
