@@ -42,8 +42,8 @@ exports = module.exports = (app) ->
     return if req.body.operation isnt 'INSERT'
 
     console.log 'finding one user', req.body.userToken
-    app.models.User.findOne _id: req.body.userToken, (err, user) ->
-      console.log 'found user?', (err || user)
+    app.models.User.findOne({_id: req.body.userToken}).exec (err, user) ->
+      console.log 'found user?', err, user, req.body.userToken
       return if err or not user
 
       app.mirror.timeline.get(req.body.itemId)
