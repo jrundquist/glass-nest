@@ -2,6 +2,7 @@
 #   Kicks off the whole show
 #
 app      = (require 'express')()
+unapp    = (require 'express')()
 port     = process.env.PORT or 8081
 mongoose = require 'mongoose'
 settings = require './lib/settings'
@@ -17,7 +18,15 @@ httpsOptions =
   cert: fs.readFileSync('certificate.pem')
 
 
+
+
 console.log "\n\nStarting in mode:", app.settings.env
+
+if process.env.NODE_ENV isnt 'development'
+  app.all '*', (req, res, next) ->
+    if req.headers['x-forwarded-proto'] isnt 'https'
+      return res.redirect "https://#{req.headers["host"]}#{req.url}"
+    next()
 
 app.config = process.env
 
