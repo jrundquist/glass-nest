@@ -28,25 +28,16 @@ exports = module.exports = (app) ->
           pass: req.body.password
         for deviceId of data.shared
           user.device = deviceId
-
-        app.mirror.timeline.insert(
-          resource:
-            text: "Welcome to Glass Nest, "+user.name
-            menuItems: [
-              {
-                id: 1
-                action: "REPLY"
-              },
-              {
-                id: 2
-                action: "DELETE"
-              }
-            ]
-            notification:
-              level: "DEFAULT"
-          )
-          .withAuthClient(user.credentials(app))
-          .execute (err, data) ->
-            console.log err || data
-        user.save()
+        for structureId of data.structure
+          user.structure = structureId
+        user.save (err) ->
+          user.updateNestCard()
         res.redirect '/'
+
+  app.get '/send-card', app.gate.requireLogin, (req, res) ->
+    req.user.updateNestCard(app)
+    res.send 200
+
+
+
+

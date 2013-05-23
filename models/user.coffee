@@ -1,6 +1,8 @@
 crypto = require('crypto')
 algorithm = "aes256"
 key = "qCi5zPedUoS6Yrl"
+nest = require 'unofficial-nest-api'
+
 
 mongoose = require('mongoose')
 Schema = mongoose.Schema
@@ -20,6 +22,8 @@ UserSchema = new Schema(
   celcius:
     type: Boolean
     default: true
+
+  card: String
 
   _nestAuth: String
   _structure: String
@@ -79,6 +83,81 @@ UserSchema.method('localTemp', (c) ->
   return c if @.celcius
   Math.round(c * (9 / 5.0) + 32.0)
 )
+
+
+UserSchema.method('updateNestCard', (app) ->
+  nest.login @.nestAuth.user, @.nestAuth.pass, (err, data) =>
+    return if err
+    nest.fetchStatus (data) =>
+      shared = data.shared[@.device]
+      device = data.device[@.device]
+      structure = data.structure[@.structure]
+
+      targetTemp  = @.localTemp(shared.target_temperature)
+      currentTemp = @.localTemp(shared.current_temperature)
+      leaf        = device.leaf
+
+      if leaf
+        leafText = "<img src=\"http://i.imgur.com/57lfBl8.png\" width=\"60\" height=\"61\" style=\"margin-top:10px;\">\n"
+      else
+        leafText = '\n'
+
+
+      html = "<article>\n\
+                  <section>\n\
+                    <div class=\"layout-figure\">\n\
+                      <div class=\"align-center\">\n\
+                        <p class=\"text-x-large\">#{currentTemp}</p>\n\
+                        #{leafText}\
+                      </div>\n\
+                      <div>\n\
+                        <div class=\"text-normal align-center\">\n\
+                          <p>Target Temp</p>\n\
+                          <p style=\"font-size:130px;line-height:1.5em;font-weight:300;\"\">#{targetTemp}<sup>&deg;</sup></p>\n\
+                        </div>\n\
+                      </div>\n\
+                    </div>\n\
+                  </section>\n\
+                  <footer>\n\
+                    <img src=\"http://i.imgur.com/lBERcCp.png\" height=\"25px\" />\n\
+                  </footer>\n\
+                </article>"
+
+      if @.card
+        app.mirror.timeline.patch(
+          id: @.card
+          resource:
+            html: html
+          )
+          .withAuthClient(@.credentials(app))
+          .execute (err, res) =>
+            if err and err.code is 404
+              @.card = undefined
+              @.updateNestCard(app)
+      else
+        app.mirror.timeline.insert(
+          resource:
+            html: html
+            notification:
+              level: "DEFAULT"
+            menuItems: [
+              {
+                id: 0
+                action: "REPLY"
+              }
+              {
+                id: 1,
+                action: "TOGGLE_PINNED"
+              }
+            ]
+          )
+          .withAuthClient(@.credentials(app))
+          .execute (err, data) =>
+            @.card = data.id if not err
+            @.save(err)
+)
+
+
 
 
 UserSchema.virtual('id')

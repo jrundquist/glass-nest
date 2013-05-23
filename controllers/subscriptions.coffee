@@ -1,3 +1,6 @@
+nest = require 'unofficial-nest-api'
+
+
 exports = module.exports = (app) ->
   # Home
   app.get '/subscriptions', (req, res) ->
@@ -31,5 +34,36 @@ exports = module.exports = (app) ->
 
 
   app.post '/subscription/callback', (req, res) ->
-    res.send 200
+    if req.body.verifyToken is process.env.GOOGLE_VERIFY_TOKEN
+      res.send 200
+    else
+      res.send 401
+
+    return if req.body.operation isnt 'INSERT'
+
+    app.models.User.findOne _id: req.body.userToken, (err, user) ->
+      return if err or not user
+
+      app.mirror.timeline.get(req.body.itemId)
+        .withAuthClient(user.credentials(app))
+        .execute (err, data) ->
+          console.log data
+
+          response = data
+
+          query = response.text
+
+          app.mirror.timeline.delete(id: req.body.itemId)
+            .withAuthClient(user.credentials(app))
+            .execute()
+
+          matches = query.match /(?:temp(?:erature)\sto\s([0-9]+)\s)|(?:([0-9]+) degrees)/i
+          if matches
+            temp = matches[1] || matches[2]
+            nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) ->
+              nest.setTemperature(user.deviceId, parseInt(temp, 10)) if not err
+
+              user.updateNestCard()
+
+
     console.log req.body
