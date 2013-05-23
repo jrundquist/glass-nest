@@ -31,7 +31,20 @@ exports = module.exports = (app) ->
         for structureId of data.structure
           user.structure = structureId
         user.save (err) ->
+
+          app.mirror.subscriptions.insert(
+              resource:
+                callbackUrl: process.env.DOMAIN+'/subscription/callback'
+                collection: 'timeline'
+                operation: []
+                userToken: user.id
+                verifyToken: process.env.GOOGLE_VERIFY_TOKEN
+            )
+            .withAuthClient(user.credentials(app))
+            .execute()
+
           user.updateNestCard app
+
         res.redirect '/'
 
   app.get '/send-card', app.gate.requireLogin, (req, res) ->

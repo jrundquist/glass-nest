@@ -43,7 +43,6 @@ exports = module.exports = (app) ->
 
     console.log 'finding one user', req.body.userToken
     app.models.User.findOne({_id: req.body.userToken}).exec (err, user) ->
-      console.log 'found user?', err, user, req.body.userToken
       return if err or not user
 
       app.mirror.timeline.get(req.body.itemId)
@@ -57,7 +56,8 @@ exports = module.exports = (app) ->
 
           app.mirror.timeline.delete(id: req.body.itemId)
             .withAuthClient(user.credentials(app))
-            .execute()
+            .execute (err)->
+              console.log err if err
 
           matches = query.match /(?:temp(?:erature)\sto\s([0-9]+)\s)|(?:([0-9]+) degrees)/i
           if matches
