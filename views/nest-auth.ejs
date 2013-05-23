@@ -1,5 +1,27 @@
-<form method="POST">
-  <input type="text" name="username" placeholder="NEST Username" />
-  <input type="password" name="password" placeholder="NEST Password" />
-  <button type="submit">Login</button>
-</form>
+<% include _head %>
+
+  <article class="glass-view">
+    <section>
+    <div class="layout-figure">
+      <div class="">
+        <p class="text-x-small">
+          We need your nest infomration
+        </p>
+      </div>
+      <div class="">
+        <form method="POST">
+          <input type="text" name="username" placeholder="NEST Username" />
+          <input type="password" name="password" placeholder="NEST Password" />
+          <button type="submit">Login</button>
+        </form>
+      </div>
+    </section>
+    <footer>
+      <p style="float:right">Just now</p>
+      <img src="http://i.imgur.com/lBERcCp.png" height="25px" />
+    </footer>
+  </article>
+
+<% include _foot %>
+
+

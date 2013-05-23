@@ -5,7 +5,50 @@ exports = module.exports = (app) ->
   app.get '/', (req, res) ->
     console.log 'got request for /'
     if req.user
-      res.render 'account'
+      user = req.user
+      nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) =>
+        res.redirect('/nest-auth') if err
+        nest.fetchStatus (data) =>
+          shared = data.shared[user.device]
+          device = data.device[user.device]
+          structure = data.structure[user.structure]
+
+          targetTemp  = user.localTemp(shared.target_temperature)
+          currentTemp = user.localTemp(shared.current_temperature)
+          leaf        = device.leaf
+          away        = structure.away
+
+          if leaf
+            leafText = "<img src=\"http://i.imgur.com/57lfBl8.png\" width=\"60\" height=\"61\" style=\"margin: 5px 0 0px 0\">\n"
+          else
+            leafText = '\n'
+
+          if away
+            awayText = "<p class=\"text-x-small\">away</p>"
+          else
+            awayText = "\n"
+
+
+          html = "<article class=\"glass-view\">\n\
+                      <section>\n\
+                        <div class=\"layout-figure\">\n\
+                          <div class=\"align-center\">\n\
+                            <p class=\"text-x-large\">#{currentTemp}</p>\n\
+                            #{leafText}\
+                          </div>\n\
+                          <div>\n\
+                            <div class=\"text-normal align-center\">\n\
+                              <p>Target Temp</p>\n\
+                              <p style=\"font-size:130px;line-height:1.5em;font-weight:300;\"\">#{targetTemp}<sup>&deg;</sup></p>\n\
+                            </div>\n\
+                          </div>\n\
+                        </div>\n\
+                      </section>\n\
+                      <footer>\n\
+                        <img src=\"http://i.imgur.com/lBERcCp.png\" height=\"25px\" />\n\
+                      </footer>\n\
+                    </article>"
+          res.render 'account', card: html
     else
       res.render 'index'
 

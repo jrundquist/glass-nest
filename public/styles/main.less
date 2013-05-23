@@ -11,6 +11,71 @@
 // @import "scheduler";
 // @import "settings";
 
+@import "glass";
+
+@import url('http://fonts.googleapis.com/css?family=Roboto:400,300,700,100');
+
+
+
 body{
-  background: #f1f1f1;
+  background: url('/images/bg.jpg') no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
 }
+
+
+.glass-view{
+  width: 640px;
+  height: 360px;
+  overflow: hidden;
+  margin: 80px auto 0;
+
+  dispaly:none;
+  opacity: 0.8;
+
+  background-color: #000;
+  color: #fff;
+
+  font-family: 'Roboto';
+  font-weight: 100;
+  font-size: 40px;
+  text-shadow: 0 1px 1px #000;
+
+  animation: fadein 2s;
+  -webkit-animation: fadein 2s;
+}
+
+input{
+  margin: 0 0 15px -2px;
+  background: #000;
+  border: 1px solid #666;
+  color: #fff;
+  width: 318px;
+  display: block;
+  padding: 0 5px;
+}
+
+button{
+  background: #9C3;
+  color: #FFF;
+  padding: 0 5px;
+}
+
+@-webkit-keyframes fadein {
+  from {
+    opacity:0;
+  }
+  to {
+    opacity: 0.8;
+  }}
+
+@keyframes fadein {
+  from {
+    opacity:0;
+  }
+  to {
+    opacity: 0.8;
+  }}
+
