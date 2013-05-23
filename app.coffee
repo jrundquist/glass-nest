@@ -2,22 +2,12 @@
 #   Kicks off the whole show
 #
 app      = (require 'express')()
-unapp    = (require 'express')()
-port     = process.env.PORT or 8081
+port     = process.env.PORT or 8080
 mongoose = require 'mongoose'
 settings = require './lib/settings'
 errors   = require './lib/error-handler'
 google   = require 'googleapis'
 imgur    = require './lib/imgur'
-https    = require('https')
-fs       = require 'fs'
-
-
-httpsOptions =
-  key: fs.readFileSync('key.pem')
-  cert: fs.readFileSync('certificate.pem')
-
-
 
 
 console.log "\n\nStarting in mode:", app.settings.env
@@ -29,6 +19,7 @@ app.imgur = imgur(process.env.IMGUR_CLIENT_ID)
 app.google = google
 
 mongoose.connection.on 'open', ()->
+
 
   google
     .discover('mirror', 'v1' )
@@ -70,11 +61,14 @@ mongoose.connection.on 'open', ()->
 
 
   # Start the app by listening on <port>
-  if process.env.NODE_ENV isnt 'development'
-    server = https.createServer(app).listen port
-  else
-    server = https.createServer(httpsOptions,app).listen port
-  console.log "Glass Nest started on port #{port}"
+  server = app.listen port
+  console.log "IMGUR pusher started on port #{port}"
+
+
+
+  # Send Service
+  require('./lib/send-service')(app)
+
 
 
 

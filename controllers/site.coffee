@@ -3,6 +3,7 @@ nest = require 'unofficial-nest-api'
 exports = module.exports = (app) ->
   # Home
   app.get '/', (req, res) ->
+    console.log 'got request for /'
     if req.user
       res.render 'account'
     else
