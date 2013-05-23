@@ -56,13 +56,15 @@ exports = module.exports = (app) ->
 
             # Grab the string from the response card
             query = response.text
-            return if not query
+            if not query
+              console.log 'empty response'
+              return
 
             ## Remove thise card now that we have the string
-            app.mirror.timeline.delete(id: payload.itemId)
-              .withAuthClient(user.credentials(app))
-              .execute () ->
-                user.updateNestCard app
+            # app.mirror.timeline.delete(id: payload.itemId)
+            #   .withAuthClient(user.credentials(app))
+            #   .execute () ->
+            #     user.updateNestCard app
 
 
             ## Parse for degrees
@@ -86,21 +88,22 @@ exports = module.exports = (app) ->
             if matches
               nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) ->
                 nest.fetchStatus (data) ->
-                  nest.setAway(user.structure, true);
+                  nest.setAway(true, user.structure);
                   user.updateNestCard app
               return
 
 
 
             ## Parse for `away`=false status
-            # "heading|going out"
+            # "heading|going home"
             # "leaving work | the office"
             # "away status to false"
-            matches = query.match /(?:(?:heading|going)\shome)|(?:leaving\s(?:work|the\soffice))|(?:away(?:\sstatus)?\sto\sfalse)/i
+            # "im home"
+            matches = query.match /(?:(?:heading|going)\shome)|(?:leaving\s(?:work|the\soffice))|(?:away(?:\sstatus)?\sto\sfalse)|(?:im\shome)/i
             if matches
               nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) ->
                 nest.fetchStatus (data) ->
-                  nest.setAway(user.structure, false);
+                  nest.setAway(false, user.structure);
                   user.updateNestCard app
               return
 
