@@ -8,7 +8,7 @@ exports = module.exports = (app) ->
         res.json data || err
 
 
-  app.get '/subsciptions/:id/remove', app.gate.requireLogin, (req, res) ->
+  app.get '/subscriptions/:id/remove', app.gate.requireLogin, (req, res) ->
     user = req.user
     app.mirror.subscriptions.delete(id: req.params.id)
       .withAuthClient(user.credentials(app))
