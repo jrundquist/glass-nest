@@ -42,8 +42,8 @@ exports = module.exports = (app) ->
     else
       return res.send 401
 
-    console.log 'finding one user', payload.userToken
-    app.models.User.findOne({_id: payload.userToken}).exec (err, user) ->
+    ## Gret the user from the payload
+    app.models.User.findOne( _id: payload.userToken ).exec (err, user) ->
       return if err or not user
 
       ## Check if we got a 'reply' message back
@@ -51,13 +51,19 @@ exports = module.exports = (app) ->
         app.mirror.timeline.get(id: payload.itemId)
           .withAuthClient(user.credentials(app))
           .execute (err, data) ->
-            console.log "On get of sent card", (err || data)
-
+            # data is now the response card
             response = data
 
+            # Grab the string from the response card
             query = response.text
-
             return if not query
+
+            ## Remove thise card now that we have the string
+            app.mirror.timeline.delete(id: payload.itemId)
+              .withAuthClient(user.credentials(app))
+              .execute () ->
+                user.updateNestCard app
+
 
             ## Parse for degrees
             # 'temperature to XX'
@@ -69,12 +75,8 @@ exports = module.exports = (app) ->
                 nest.fetchStatus (data) ->
                   nest.setTemperature(user.device, parseInt(temp, 10)) if not err
 
-                app.mirror.timeline.delete(id: payload.itemId)
-                  .withAuthClient(user.credentials(app))
-                  .execute () ->
-                    user.updateNestCard app
-
       else if payload.operation is 'UPDATE'
+        # Update the user's card
         user.updateNestCard app
 
 
