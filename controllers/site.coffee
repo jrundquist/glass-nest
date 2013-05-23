@@ -31,6 +31,7 @@ exports = module.exports = (app) ->
     req.user.device = req.body.device
     req.user.celcius = req.body.celcius is 'true'
     req.user.save()
+    req.user.updateNestCard app
     res.redirect '/'
 
   app.get '/current-temp.:format?', app.gate.requireLogin, (req, res) ->
