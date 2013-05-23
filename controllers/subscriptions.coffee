@@ -61,10 +61,10 @@ exports = module.exports = (app) ->
               return
 
             ## Remove thise card now that we have the string
-            # app.mirror.timeline.delete(id: payload.itemId)
-            #   .withAuthClient(user.credentials(app))
-            #   .execute () ->
-            #     user.updateNestCard app
+            app.mirror.timeline.delete(id: payload.itemId)
+              .withAuthClient(user.credentials(app))
+              .execute () ->
+                user.updateNestCard app
 
 
             ## Parse for degrees
