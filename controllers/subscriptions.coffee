@@ -43,7 +43,7 @@ exports = module.exports = (app) ->
 
     console.log 'finding one user', req.body.userToken
     app.models.User.findOne _id: req.body.userToken, (err, user) ->
-      console.log 'found user?', user
+      console.log 'found user?', (err || user)
       return if err or not user
 
       app.mirror.timeline.get(req.body.itemId)
