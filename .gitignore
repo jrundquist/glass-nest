@@ -20,4 +20,6 @@ logs/*
 logs/access.log
 npm-debug.log
 
+public/styles/main.css
+
 .env
