@@ -21,7 +21,7 @@ UserSchema = new Schema(
 
   celcius:
     type: Boolean
-    default: true
+    default: false
 
   card: String
 
