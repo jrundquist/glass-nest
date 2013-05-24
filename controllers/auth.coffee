@@ -3,7 +3,8 @@ nest = require 'unofficial-nest-api'
 exports = module.exports = (app) ->
   # Home
   app.get '/login', (req, res) ->
-    res.redirect '/auth/google'
+    res.render 'hold'
+
 
   app.get '/post-login-check', app.gate.requireLogin, (req, res) ->
     console.log req.user.nestAuth
