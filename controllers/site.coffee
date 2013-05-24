@@ -33,6 +33,7 @@ exports = module.exports = (app) ->
                           <div class=\"align-center\">\n\
                             <p class=\"text-x-large\">#{currentTemp}</p>\n\
                             #{leafText}\
+                            #{awayText}\
                           </div>\n\
                           <div>\n\
                             <div class=\"text-normal align-center\">\n\
