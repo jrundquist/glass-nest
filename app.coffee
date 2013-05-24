@@ -7,14 +7,11 @@ mongoose = require 'mongoose'
 settings = require './lib/settings'
 errors   = require './lib/error-handler'
 google   = require 'googleapis'
-imgur    = require './lib/imgur'
 
 
 console.log "\n\nStarting in mode:", app.settings.env
 
 app.config = process.env
-
-app.imgur = imgur(process.env.IMGUR_CLIENT_ID)
 
 app.google = google
 
@@ -66,10 +63,5 @@ mongoose.connection.on 'open', ()->
 
 
 
-  # Send Service
-  require('./lib/send-service')(app)
 
-
-
-
-mongoose.connect app.config.MONGOHQ_URL||'mongo://localhost/test'
+mongoose.connect app.config.MONGOHQ_URL||'mongodb://localhost/test'
