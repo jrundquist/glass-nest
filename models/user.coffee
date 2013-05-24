@@ -1,11 +1,9 @@
-crypto = require('crypto')
+crypto    = require('crypto')
 algorithm = "aes256"
-key = "qCi5zPedUoS6Yrl"
-nest = require 'unofficial-nest-api'
-
-
-mongoose = require('mongoose')
-Schema = mongoose.Schema
+key       = process.env.ENCRYPTION_KEY
+nest      = require 'unofficial-nest-api'
+mongoose  = require('mongoose')
+Schema    = mongoose.Schema
 
 # Schema Setup
 UserSchema = new Schema(
@@ -116,6 +114,7 @@ UserSchema.method('updateNestCard', (app) ->
                       <div class=\"align-center\">\n\
                         <p class=\"text-x-large\">#{currentTemp}</p>\n\
                         #{leafText}\
+                        #{awayText}\
                       </div>\n\
                       <div>\n\
                         <div class=\"text-normal align-center\">\n\
