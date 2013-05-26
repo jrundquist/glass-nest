@@ -1,6 +1,7 @@
 crypto    = require('crypto')
 algorithm = "aes256"
 key       = process.env.ENCRYPTION_KEY
+key2      = process.env.ENCRYPTION_KEY2
 nest      = require 'unofficial-nest-api'
 mongoose  = require('mongoose')
 Schema    = mongoose.Schema
@@ -12,10 +13,10 @@ UserSchema = new Schema(
     index: true
   firstName: String
   lastName: String
-  oauthInfo: {}
-  token: String
-  token_type: String
-  refresh_token: String
+
+  _token: String
+  _token_type: String
+  _refresh_token: String
 
   celcius:
     type: Boolean
@@ -67,6 +68,36 @@ UserSchema.virtual('nestAuth')
     this._nestAuth = @.encryptSecure JSON.stringify(obj)
   )
 
+UserSchema.virtual('token')
+  .get( ()->
+    if @._token
+      return JSON.parse(@.decryptSecure2 @._token)
+    undefined
+  )
+  .set( (obj) ->
+    this._token = @.encryptSecure2 JSON.stringify(obj)
+  )
+
+# Dont wrap, b/c known to be one of a set of known values
+# deceases security of encryption
+UserSchema.virtual('token_type')
+  .get( ()->
+    @._token_type
+  )
+  .set( (obj) ->
+    this._token_type = obj
+  )
+
+UserSchema.virtual('refresh_token')
+  .get( ()->
+    if @._refresh_token
+      return JSON.parse(@.decryptSecure2 @._refresh_token)
+    undefined
+  )
+  .set( (obj) ->
+    this._refresh_token = @.encryptSecure2 JSON.stringify(obj)
+  )
+
 
 UserSchema.method('encryptSecure', (text) ->
   cipher = crypto.createCipher algorithm, key
@@ -74,6 +105,15 @@ UserSchema.method('encryptSecure', (text) ->
 )
 UserSchema.method('decryptSecure', (encrypted)->
   decipher = crypto.createDecipher algorithm, key
+  decipher.update(encrypted, 'hex', 'utf8') + decipher.final('utf8')
+)
+
+UserSchema.method('encryptSecure2', (text) ->
+  cipher = crypto.createCipher algorithm, key2
+  cipher.update(text, 'utf8', 'hex') + cipher.final('hex')
+)
+UserSchema.method('decryptSecure2', (encrypted)->
+  decipher = crypto.createDecipher algorithm, key2
   decipher.update(encrypted, 'hex', 'utf8') + decipher.final('utf8')
 )
 

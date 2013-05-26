@@ -7,7 +7,6 @@ exports = module.exports = (app) ->
 
 
   app.get '/post-login-check', app.gate.requireLogin, (req, res) ->
-    console.log req.user.nestAuth
     if req.user.nestAuth?.user and req.user.nestAuth?.pass
       res.redirect '/'
     else
@@ -23,7 +22,6 @@ exports = module.exports = (app) ->
         return res.redirect '/nest-auth?incorrect'
 
       nest.fetchStatus (data) ->
-        console.log data
         user.nestAuth =
           user: req.body.username
           pass: req.body.password

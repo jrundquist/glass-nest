@@ -29,14 +29,9 @@ exports.bootEveryauth = (app) =>
     app.models.User.findOne({email: googleData.email}).exec (err, user) ->
       return promise.fail(err) if err
       if user
-        user.oauthInfo =
-          email: googleData.email
-          google: googleData
-          extra: extra
-        token: accessToken
-        token_type: extra.token_type
-        refresh_token: extra.refresh_token
-        user.markModified('oauthInfo')
+        user.token = accessToken
+        user.token_type = extra.token_type
+        user.refresh_token = extra.refresh_token
         user.save (err) ->
           promise.fulfill user
       else
