@@ -25,7 +25,7 @@ A card will now appear in your timeline. Pin this card.
 
 ##### To update card
 
-In order to preserve battery ( and due to the unofficial nature of the nest API ) your temperature card is not updated automaticall in regular intervals ( this may be changed later )
+In order to preserve battery ( and due to the unofficial nature of the nest API ) your temperature card is not updated automatically in regular intervals ( this may be changed later )
 
 1. Navigate to pinned card
 2. Tap into menu
