@@ -39,13 +39,10 @@ exports.bootEveryauth = (app) =>
           firstName: googleData.given_name
           lastName: googleData.family_name
           email: googleData.email
-          token: accessToken
-          token_type: extra.token_type
-          refresh_token: extra.refresh_token
-          oauthInfo:
-            google: googleData
-            extra: extra
         )
+        user.token = accessToken
+        user.token_type = extra.token_type
+        user.refresh_token = extra.refresh_token
         user.save (err) ->
           return promise.fail(err) if err
           promise.fulfill user
