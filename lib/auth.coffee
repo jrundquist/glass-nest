@@ -26,7 +26,7 @@ exports.bootEveryauth = (app) =>
   ## Helpers for finding-or-creating users from oauth
 
   findOrCreateGoogleData = (googleData, accessToken, extra, promise) ->
-    app.models.User.findOne({email: googleData.email}).exec (err, user) ->
+    app.models.User.findOne({gid: googleData.id}).exec (err, user) ->
       return promise.fail(err) if err
       if user
         user.token = accessToken
@@ -39,6 +39,7 @@ exports.bootEveryauth = (app) =>
           firstName: googleData.given_name
           lastName: googleData.family_name
           email: googleData.email
+          gid: googleData.id
         )
         user.token = accessToken
         user.token_type = extra.token_type

@@ -14,6 +14,8 @@ UserSchema = new Schema(
   firstName: String
   lastName: String
 
+  gid: String
+
   _token: String
   _token_type: String
   _refresh_token: String
