@@ -204,7 +204,7 @@ UserSchema.method('cardHtml', (next) ->
 )
 
 UserSchema.method('updateNestCard', (app) ->
-    @.cardHtml (err, html) ->
+    @.cardHtml (err, html) =>
       if @.card
         app.mirror.timeline.patch(
           id: @.card
