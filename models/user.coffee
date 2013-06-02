@@ -125,18 +125,26 @@ UserSchema.method('localTemp', (c) ->
 )
 
 
-UserSchema.method('updateNestCard', (app) ->
+UserSchema.method('cardHtml', (next) ->
+
   nest.login @.nestAuth.user, @.nestAuth.pass, (err, data) =>
-    return if err
+    return next err, '' if err
     nest.fetchStatus (data) =>
       shared = data.shared[@.device]
       device = data.device[@.device]
       structure = data.structure[@.structure]
 
-      targetTemp  = @.localTemp(shared.target_temperature)
-      currentTemp = @.localTemp(shared.current_temperature)
-      leaf        = device.leaf
-      away        = structure.away
+      currentTemp   = @.localTemp(shared.current_temperature)
+      leaf          = device.leaf
+      away          = structure.away
+
+      if shared.target_temperature_type is 'range'
+        targetTemp  = @.localTemp(shared.target_temperature_high)
+        targetTempLow = @.localTemp(shared.target_temperature_low)
+      else
+        targetTemp  = @.localTemp(shared.target_temperature)
+
+
 
       if leaf
         leafText = "<img src=\"http://i.imgur.com/57lfBl8.png\" width=\"60\" height=\"61\" style=\"margin: 5px 0 0px 0\">\n"
@@ -149,8 +157,29 @@ UserSchema.method('updateNestCard', (app) ->
       else
         awayText = "\n"
 
-
-      html = "<article>\n\
+      if targetTemp and targetTempLow
+        html = "<article>\n\
+                  <section>\n\
+                    <div class=\"layout-figure\">\n\
+                      <div class=\"align-center\">\n\
+                        <p class=\"text-x-large\">#{currentTemp}</p>\n\
+                        #{leafText}\
+                        #{awayText}\
+                      </div>\n\
+                      <div>\n\
+                        <div class=\"text-normal align-center\">\n\
+                          <p>Target Temp</p>\n\
+                          <p style=\"font-size:110px;line-height:1.5em;font-weight:300\"><span class=\"blue\">#{targetTempLow}<sup>°</sup></span>&nbsp;<span class=\"red\">#{targetTemp}<sup>°</sup></span></p>
+                        </div>\n\
+                      </div>\n\
+                    </div>\n\
+                  </section>\n\
+                  <footer>\n\
+                    <img src=\"http://i.imgur.com/lBERcCp.png\" height=\"25px\" />\n\
+                  </footer>\n\
+                </article>"
+      else
+        html = "<article>\n\
                   <section>\n\
                     <div class=\"layout-figure\">\n\
                       <div class=\"align-center\">\n\
@@ -170,7 +199,12 @@ UserSchema.method('updateNestCard', (app) ->
                     <img src=\"http://i.imgur.com/lBERcCp.png\" height=\"25px\" />\n\
                   </footer>\n\
                 </article>"
+      next null, html
 
+)
+
+UserSchema.method('updateNestCard', (app) ->
+    @.cardHtml (err, html) ->
       if @.card
         app.mirror.timeline.patch(
           id: @.card
