@@ -63,8 +63,7 @@ exports = module.exports = (app) ->
             ## Remove thise card now that we have the string
             app.mirror.timeline.delete(id: payload.itemId)
               .withAuthClient(user.credentials(app))
-              .execute () ->
-                user.updateNestCard app
+              .execute()
 
 
             ## Parse for degrees
@@ -76,6 +75,7 @@ exports = module.exports = (app) ->
               nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) ->
                 nest.fetchStatus (data) ->
                   nest.setTemperature(user.device, parseInt(temp, 10)) if not err
+                  setTimeout (do(user) -> () -> user.updateNestCard(app)), 2000
               # Return since we found a match
               return
 
@@ -89,7 +89,7 @@ exports = module.exports = (app) ->
               nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) ->
                 nest.fetchStatus (data) ->
                   nest.setAway true, user.structure
-                  user.updateNestCard app
+                  setTimeout (do(user) -> () -> user.updateNestCard(app)), 2000
               return
 
 
@@ -104,7 +104,7 @@ exports = module.exports = (app) ->
               nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) ->
                 nest.fetchStatus (data) ->
                   nest.setAway false, user.structure
-                  user.updateNestCard app
+                  setTimeout (do(user) -> () -> user.updateNestCard(app)), 2000
               return
 
       else if payload.userActions[0].payload is 'away'
@@ -112,7 +112,7 @@ exports = module.exports = (app) ->
         nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) ->
           nest.fetchStatus (data) ->
             nest.setAway !data.structure[user.structure].away, user.structure
-            user.updateNestCard app
+            setTimeout (do(user) -> () -> user.updateNestCard(app)), 2000
       else
         # Update the user's card
         user.updateNestCard app
