@@ -37,6 +37,8 @@ exports = module.exports = (app) ->
 
     payload = req.body
 
+    console.log payload
+
     if payload.verifyToken is process.env.GOOGLE_VERIFY_TOKEN
       res.send 200
     else

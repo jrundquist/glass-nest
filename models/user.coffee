@@ -228,7 +228,7 @@ UserSchema.method('updateNestCard', (app) ->
                 action: "REPLY"
               }
               {
-                id: 1
+                id: 'update'
                 action: "CUSTOM"
                 values: [
                   {
@@ -239,7 +239,18 @@ UserSchema.method('updateNestCard', (app) ->
                 ]
               },
               {
-                id: 2,
+                id: 'away'
+                action: "CUSTOM"
+                values: [
+                  {
+                    state: "DEFAULT",
+                    displayName: "Toggle Away",
+                    iconUrl: "http://i.imgur.com/Os9pTvx.png"
+                  }
+                ]
+              },
+              {
+                id: 3,
                 action: "TOGGLE_PINNED"
               }
             ]
