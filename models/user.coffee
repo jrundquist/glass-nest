@@ -210,6 +210,38 @@ UserSchema.method('updateNestCard', (app) ->
           id: @.card
           resource:
             html: html
+            menuItems: [
+              {
+                id: 0
+                action: "REPLY"
+              }
+              {
+                id: 'update'
+                action: "CUSTOM"
+                values: [
+                  {
+                    state: "DEFAULT",
+                    displayName: "Update",
+                    iconUrl: "http://i.imgur.com/DRZUngH.png"
+                  }
+                ]
+              },
+              {
+                id: 'away'
+                action: "CUSTOM"
+                values: [
+                  {
+                    state: "DEFAULT",
+                    displayName: "Toggle Away",
+                    iconUrl: "http://i.imgur.com/Os9pTvx.png"
+                  }
+                ]
+              },
+              {
+                id: 3,
+                action: "TOGGLE_PINNED"
+              }
+            ]
           )
           .withAuthClient(@.credentials(app))
           .execute (err, res) =>

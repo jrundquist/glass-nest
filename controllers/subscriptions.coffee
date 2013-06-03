@@ -37,8 +37,6 @@ exports = module.exports = (app) ->
 
     payload = req.body
 
-    console.log payload
-
     if payload.verifyToken is process.env.GOOGLE_VERIFY_TOKEN
       res.send 200
     else
@@ -109,7 +107,13 @@ exports = module.exports = (app) ->
                   user.updateNestCard app
               return
 
-      else if payload.operation is 'UPDATE'
+      else if payload.userActions[0].payload is 'away'
+        # toggle away status
+        nest.login user.nestAuth.user, user.nestAuth.pass, (err, data) ->
+          nest.fetchStatus (data) ->
+            nest.setAway !data.structure[user.structure].away, user.structure
+            user.updateNestCard app
+      else
         # Update the user's card
         user.updateNestCard app
 
